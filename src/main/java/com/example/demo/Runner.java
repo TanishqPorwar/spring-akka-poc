@@ -29,13 +29,7 @@ class Runner implements CommandLineRunner {
       ActorRef taskSupervisor = actorSystem.actorOf(SPRING_EXTENSION_PROVIDER.get(actorSystem).props("taskSupervisor"), "taskSupervisor");
 
       taskSupervisor.tell(new Message("Hello", "World"), null);
-//      workerActor.tell(new WorkerActor.Request(), null);
-//      workerActor.tell(new WorkerActor.Request(), null);
 
-//      FiniteDuration duration = FiniteDuration.create(1, TimeUnit.SECONDS);
-//      Future<Object> awaitable = Patterns.ask(taskSupervisor, new WorkerActor.Response(), Timeout.durationToTimeout(duration));
-
-//      logger.info("Response: " + Await.result(awaitable, duration));
     } finally {
       actorSystem.terminate();
       Await.result(actorSystem.whenTerminated(), Duration.Inf());
