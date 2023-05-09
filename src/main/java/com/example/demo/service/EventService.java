@@ -1,23 +1,23 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Task;
+import com.example.demo.model.EventMessage;
 import java.util.Random;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
-public class TaskService {
+@Slf4j
+public class EventService {
 
   private final Random random = new Random();
 
-  public String process(Task task) {
+  public void process(EventMessage message) {
     try {
       Thread.sleep(random.nextInt(100, 500));
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    return task.message() + task.name();
+    log.info("Event received message: {}", message);
   }
 
 }

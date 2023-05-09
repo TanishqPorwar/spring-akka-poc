@@ -1,38 +1,41 @@
 package com.example.demo;
 
-import static com.example.demo.config.SpringExtension.SPRING_EXTENSION_PROVIDER;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import com.example.demo.model.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.demo.broker.producer.MessageProducer;
+import com.example.demo.extension.akka.SpringAkkaExtension;
+import com.example.demo.model.Task;
+import com.example.demo.service.ActorSupervisorService;
+import java.util.concurrent.TimeoutException;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import scala.concurrent.Await;
-import scala.concurrent.duration.Duration;
 
-@Component
+
 class Runner implements CommandLineRunner {
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final ActorSupervisorService actorSupervisorService;
+  private final MessageProducer messageProducer;
 
-  private final ActorSystem actorSystem;
-
-  Runner(ActorSystem actorSystem) {
-    this.actorSystem = actorSystem;
+  Runner(ActorSystem actorSystem, SpringAkkaExtension akkaExtension,
+      ActorSupervisorService actorSupervisorService, MessageProducer messageProducer) {
+    this.actorSupervisorService = actorSupervisorService;
+    this.messageProducer = messageProducer;
   }
 
   @Override
   public void run(String[] args) throws Exception {
-    try {
-      ActorRef taskSupervisor = actorSystem.actorOf(SPRING_EXTENSION_PROVIDER.get(actorSystem).props("taskSupervisor"), "taskSupervisor");
+//    actorSimulation();
+    kafkaSimulation();
+  }
 
-      taskSupervisor.tell(new Message("Hello", "World"), null);
-
-    } finally {
-      actorSystem.terminate();
-      Await.result(actorSystem.whenTerminated(), Duration.Inf());
+  private void kafkaSimulation() {
+    for (int i = 0; i < 100; i++) {
+      messageProducer.sendMessage(new Task("Message:" + i, String.valueOf(i)));
     }
+  }
+
+  private void actorSimulation() throws TimeoutException, InterruptedException {
+
+    actorSupervisorService.submit(new Task("Hello", "World"));
+
   }
 }
